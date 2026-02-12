@@ -1,0 +1,14 @@
+{
+  "event_type": "payment.escrow_released",
+  "push": {
+    "title": "Payment Received",
+    "body": "You've received {{.RunnerPayoutFormatted}} for your delivery"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: You've received {{.RunnerPayoutFormatted}} for completing the delivery. Thank you!"
+  },
+  "email": {
+    "subject": "Payment Received - {{.RunnerPayoutFormatted}}",
+    "html": "<h2>Payment Received</h2><p>You've received <strong>{{.RunnerPayoutFormatted}}</strong> for completing the delivery. Platform fee: {{.PlatformFeeFormatted}}.</p>"
+  }
+}

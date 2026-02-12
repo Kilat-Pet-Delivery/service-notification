@@ -1,0 +1,14 @@
+{
+  "event_type": "booking.delivery_confirmed",
+  "push": {
+    "title": "Delivery Confirmed!",
+    "body": "Delivery confirmed for booking {{.BookingNumber}}. Thank you for using Kilat Pet Runner!"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Delivery confirmed for booking {{.BookingNumber}}. Thank you!"
+  },
+  "email": {
+    "subject": "Delivery Confirmed - Booking {{.BookingNumber}}",
+    "html": "<h2>Delivery Confirmed!</h2><p>The delivery for booking <strong>{{.BookingNumber}}</strong> has been confirmed. Thank you for using Kilat Pet Runner!</p>"
+  }
+}

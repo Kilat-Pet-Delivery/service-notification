@@ -1,0 +1,14 @@
+{
+  "event_type": "booking.completed",
+  "push": {
+    "title": "Booking Completed",
+    "body": "Booking {{.BookingNumber}} completed. Payment has been processed."
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Booking {{.BookingNumber}} completed. Payment processed successfully."
+  },
+  "email": {
+    "subject": "Booking Completed - {{.BookingNumber}}",
+    "html": "<h2>Booking Completed</h2><p>Your booking <strong>{{.BookingNumber}}</strong> is now complete and payment has been processed. We hope your pet had a safe journey!</p>"
+  }
+}

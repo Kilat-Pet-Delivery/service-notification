@@ -1,0 +1,14 @@
+{
+  "event_type": "tracking.started",
+  "push": {
+    "title": "Live Tracking Started",
+    "body": "Live tracking is now active for your delivery. Open the app to follow along!"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Live tracking started for your delivery. Open the app to track in real-time."
+  },
+  "email": {
+    "subject": "Live Tracking Started",
+    "html": "<h2>Live Tracking Started</h2><p>Live tracking is now active for your delivery. Open the Kilat Pet Runner app to follow your pet's journey in real-time!</p>"
+  }
+}

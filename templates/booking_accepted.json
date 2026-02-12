@@ -1,0 +1,14 @@
+{
+  "event_type": "booking.accepted",
+  "push": {
+    "title": "Runner Assigned!",
+    "body": "A runner has accepted your booking {{.BookingNumber}}"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: A runner accepted your booking {{.BookingNumber}}. Track your pet's journey in the app."
+  },
+  "email": {
+    "subject": "Runner Assigned - Booking {{.BookingNumber}}",
+    "html": "<h2>Runner Assigned!</h2><p>A runner has accepted your booking <strong>{{.BookingNumber}}</strong>. You can track the delivery in real-time through the app.</p>"
+  }
+}

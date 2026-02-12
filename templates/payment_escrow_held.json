@@ -1,0 +1,14 @@
+{
+  "event_type": "payment.escrow_held",
+  "push": {
+    "title": "Payment Authorized",
+    "body": "Payment of {{.AmountFormatted}} authorized for your booking"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Payment of {{.AmountFormatted}} has been authorized. Funds will be held until delivery is confirmed."
+  },
+  "email": {
+    "subject": "Payment Authorized - {{.AmountFormatted}}",
+    "html": "<h2>Payment Authorized</h2><p>A payment of <strong>{{.AmountFormatted}}</strong> has been authorized for your booking. Funds are held in escrow and will be released to the runner upon delivery confirmation.</p>"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "event_type": "booking.cancelled",
+  "push": {
+    "title": "Booking Cancelled",
+    "body": "Booking {{.BookingNumber}} was cancelled: {{.Reason}}"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Booking {{.BookingNumber}} cancelled. Reason: {{.Reason}}. Any payment will be refunded."
+  },
+  "email": {
+    "subject": "Booking Cancelled - {{.BookingNumber}}",
+    "html": "<h2>Booking Cancelled</h2><p>Your booking <strong>{{.BookingNumber}}</strong> has been cancelled.</p><p><strong>Reason:</strong> {{.Reason}}</p><p>Any payments will be refunded to your original payment method.</p>"
+  }
+}

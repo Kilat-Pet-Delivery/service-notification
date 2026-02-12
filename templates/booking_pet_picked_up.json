@@ -1,0 +1,14 @@
+{
+  "event_type": "booking.pet_picked_up",
+  "push": {
+    "title": "Pet Picked Up",
+    "body": "Your pet has been picked up for booking {{.BookingNumber}}"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Your pet has been picked up! Booking {{.BookingNumber}}. Track live in the app."
+  },
+  "email": {
+    "subject": "Pet Picked Up - Booking {{.BookingNumber}}",
+    "html": "<h2>Pet Picked Up!</h2><p>The runner has picked up your pet for booking <strong>{{.BookingNumber}}</strong>. Delivery is on the way!</p>"
+  }
+}

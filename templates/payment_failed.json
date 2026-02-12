@@ -1,0 +1,14 @@
+{
+  "event_type": "payment.failed",
+  "push": {
+    "title": "Payment Failed",
+    "body": "Payment failed: {{.Reason}}"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Payment failed - {{.Reason}}. Please update your payment method in the app."
+  },
+  "email": {
+    "subject": "Payment Failed",
+    "html": "<h2>Payment Failed</h2><p>We were unable to process your payment.</p><p><strong>Reason:</strong> {{.Reason}}</p><p>Please update your payment method in the app and try again.</p>"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "event_type": "tracking.completed",
+  "push": {
+    "title": "Tracking Completed",
+    "body": "Tracking completed. Total distance: {{.TotalDistance}} km"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Tracking completed. Total distance covered: {{.TotalDistance}} km."
+  },
+  "email": {
+    "subject": "Tracking Completed",
+    "html": "<h2>Tracking Completed</h2><p>The tracking session has ended. Total distance covered: <strong>{{.TotalDistance}} km</strong>.</p>"
+  }
+}

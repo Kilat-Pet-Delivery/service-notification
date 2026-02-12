@@ -1,0 +1,14 @@
+{
+  "event_type": "booking.requested",
+  "push": {
+    "title": "Booking Created",
+    "body": "Booking {{.BookingNumber}} created. Searching for nearby runners..."
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Booking {{.BookingNumber}} created. We're looking for a runner near you."
+  },
+  "email": {
+    "subject": "Booking Created - {{.BookingNumber}}",
+    "html": "<h2>Booking Created</h2><p>Your booking <strong>{{.BookingNumber}}</strong> has been created. We're searching for runners near your pickup location.</p>"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "event_type": "booking.delivery_in_progress",
+  "push": {
+    "title": "Delivery In Progress",
+    "body": "Your pet is on the way! Booking {{.BookingNumber}}"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Your pet is on the way to the drop-off location. Booking {{.BookingNumber}}."
+  },
+  "email": {
+    "subject": "Delivery In Progress - Booking {{.BookingNumber}}",
+    "html": "<h2>Delivery In Progress</h2><p>Your pet is on the way to the drop-off location for booking <strong>{{.BookingNumber}}</strong>.</p>"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "event_type": "payment.escrow_refunded",
+  "push": {
+    "title": "Refund Processed",
+    "body": "A refund of {{.AmountFormatted}} has been processed to your account"
+  },
+  "sms": {
+    "body": "Kilat Pet Runner: Refund of {{.AmountFormatted}} processed. Please allow 3-5 business days."
+  },
+  "email": {
+    "subject": "Refund Processed - {{.AmountFormatted}}",
+    "html": "<h2>Refund Processed</h2><p>A refund of <strong>{{.AmountFormatted}}</strong> has been processed to your original payment method. Please allow 3-5 business days for it to appear.</p>"
+  }
+}
