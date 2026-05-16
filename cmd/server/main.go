@@ -168,8 +168,10 @@ func main() {
 
 	// 14. Register API routes.
 	apiV1 := router.Group("/api/v1")
-	notifHandler := handler.NewNotificationHandler(notifService, notifListRepo, log)
+	notifHandler := handler.NewNotificationHandler(notifService, log)
 	notifHandler.RegisterRoutes(apiV1, jwtManager)
+	listNotifHandler := handler.NewListNotificationsHandler(notifListRepo, log)
+	listNotifHandler.RegisterRoutes(apiV1, jwtManager)
 	prefHandler := handler.NewPreferenceHandler(notifService, log)
 	prefHandler.RegisterRoutes(apiV1, jwtManager)
 

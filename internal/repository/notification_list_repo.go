@@ -131,6 +131,9 @@ func decodeCursor(s string) (cursorPayload, error) {
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return p, fmt.Errorf("%w: json: %v", ErrInvalidCursor, err)
 	}
+	// Reject zero-valued tuples explicitly: a "before epoch / nil uuid" cursor
+	// is never one we issued, so treat it as tampering or decode drift rather
+	// than silently returning the whole table.
 	if p.ID == uuid.Nil || p.CreatedAt.IsZero() {
 		return p, fmt.Errorf("%w: empty fields", ErrInvalidCursor)
 	}

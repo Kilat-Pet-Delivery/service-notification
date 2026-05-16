@@ -10,33 +10,24 @@ import (
 	"go.uber.org/zap"
 )
 
-// NotificationHandler handles notification REST endpoints. Listing has moved
-// to ListNotificationsHandler (cursor-paginated); this handler covers state
-// mutation only (mark-as-read for now).
+// NotificationHandler handles state-mutation endpoints on notifications.
+// Reads (list, cursor pagination) live on ListNotificationsHandler.
 type NotificationHandler struct {
 	service *application.NotificationService
-	lister  NotificationLister
 	logger  *zap.Logger
 }
 
 // NewNotificationHandler creates a new notification handler.
-func NewNotificationHandler(service *application.NotificationService, lister NotificationLister, logger *zap.Logger) *NotificationHandler {
-	return &NotificationHandler{service: service, lister: lister, logger: logger}
+func NewNotificationHandler(service *application.NotificationService, logger *zap.Logger) *NotificationHandler {
+	return &NotificationHandler{service: service, logger: logger}
 }
 
-// RegisterRoutes registers notification API routes. The list endpoint is
-// served by an inline ListNotificationsHandler that shares the same lister
-// dependency so all /notifications routes live under a single auth-protected
-// group.
+// RegisterRoutes wires the mutation endpoints. Reads are registered separately
+// by ListNotificationsHandler.RegisterRoutes from cmd/server/main.go.
 func (h *NotificationHandler) RegisterRoutes(rg *gin.RouterGroup, jwtManager *auth.JWTManager) {
-	listHandler := NewListNotificationsHandler(h.lister, h.logger)
-
 	notifications := rg.Group("/notifications")
 	notifications.Use(middleware.AuthMiddleware(jwtManager))
-	{
-		notifications.GET("", listHandler.List)
-		notifications.PUT("/:id/read", h.MarkAsRead)
-	}
+	notifications.PUT("/:id/read", h.MarkAsRead)
 }
 
 // MarkAsRead marks a notification as read.

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -242,7 +243,7 @@ func TestListNotifications_OnlyReturnsItemsVisibleToUser(t *testing.T) {
 		t.Fatalf("alice: expected 3 items, got %d", len(aliceItems))
 	}
 	for _, it := range aliceItems {
-		if !startsWith(it.Title, "alice-") {
+		if !strings.HasPrefix(it.Title, "alice-") {
 			t.Errorf("alice list leaked notification with title %q", it.Title)
 		}
 	}
@@ -256,6 +257,3 @@ func TestListNotifications_OnlyReturnsItemsVisibleToUser(t *testing.T) {
 	}
 }
 
-func startsWith(s, prefix string) bool {
-	return len(s) >= len(prefix) && s[:len(prefix)] == prefix
-}
