@@ -3,29 +3,12 @@ package application
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Kilat-Pet-Delivery/service-notification/internal/adapter"
 	notifDomain "github.com/Kilat-Pet-Delivery/service-notification/internal/domain/notification"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
-
-// NotificationDTO is the API response representation of a notification.
-type NotificationDTO struct {
-	ID             uuid.UUID  `json:"id"`
-	UserID         uuid.UUID  `json:"user_id"`
-	BookingID      *uuid.UUID `json:"booking_id,omitempty"`
-	EventType      string     `json:"event_type"`
-	Title          string     `json:"title"`
-	Body           string     `json:"body"`
-	Status         string     `json:"status"`
-	IsRead         bool       `json:"is_read"`
-	ReadAt         *time.Time `json:"read_at,omitempty"`
-	ChannelsSent   []string   `json:"channels_sent"`
-	ChannelsFailed []string   `json:"channels_failed"`
-	CreatedAt      time.Time  `json:"created_at"`
-}
 
 // PreferenceDTO is the API response representation of notification preferences.
 type PreferenceDTO struct {
@@ -130,21 +113,6 @@ func (s *NotificationService) HandleEvent(ctx context.Context, eventType string,
 	return nil
 }
 
-// ListForUser returns paginated notifications for a user.
-func (s *NotificationService) ListForUser(ctx context.Context, userID uuid.UUID, page, limit int) ([]*NotificationDTO, int64, error) {
-	offset := (page - 1) * limit
-	notifications, total, err := s.notifRepo.FindByUserID(ctx, userID, limit, offset)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	dtos := make([]*NotificationDTO, len(notifications))
-	for i, n := range notifications {
-		dtos[i] = toNotifDTO(n)
-	}
-	return dtos, total, nil
-}
-
 // MarkAsRead marks a notification as read.
 func (s *NotificationService) MarkAsRead(ctx context.Context, notificationID, userID uuid.UUID) error {
 	notif, err := s.notifRepo.FindByID(ctx, notificationID)
@@ -242,27 +210,3 @@ func (s *NotificationService) sendViaChannel(ctx context.Context, notif *notifDo
 	}
 }
 
-func toNotifDTO(n *notifDomain.Notification) *NotificationDTO {
-	sent := make([]string, len(n.ChannelsSent()))
-	for i, ch := range n.ChannelsSent() {
-		sent[i] = string(ch)
-	}
-	failed := make([]string, len(n.ChannelsFailed()))
-	for i, ch := range n.ChannelsFailed() {
-		failed[i] = string(ch)
-	}
-	return &NotificationDTO{
-		ID:             n.ID(),
-		UserID:         n.UserID(),
-		BookingID:      n.BookingID(),
-		EventType:      n.EventType(),
-		Title:          n.Title(),
-		Body:           n.Body(),
-		Status:         string(n.Status()),
-		IsRead:         n.IsRead(),
-		ReadAt:         n.ReadAt(),
-		ChannelsSent:   sent,
-		ChannelsFailed: failed,
-		CreatedAt:      n.CreatedAt(),
-	}
-}

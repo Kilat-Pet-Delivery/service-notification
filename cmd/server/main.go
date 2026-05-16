@@ -93,6 +93,7 @@ func main() {
 
 	// 8. Initialize repositories.
 	notifRepo := repository.NewNotificationRepository(db)
+	notifListRepo := repository.NewNotificationListRepo(db)
 	prefRepo := repository.NewPreferenceRepository(db)
 
 	// 9. Initialize application service.
@@ -167,7 +168,7 @@ func main() {
 
 	// 14. Register API routes.
 	apiV1 := router.Group("/api/v1")
-	notifHandler := handler.NewNotificationHandler(notifService, log)
+	notifHandler := handler.NewNotificationHandler(notifService, notifListRepo, log)
 	notifHandler.RegisterRoutes(apiV1, jwtManager)
 	prefHandler := handler.NewPreferenceHandler(notifService, log)
 	prefHandler.RegisterRoutes(apiV1, jwtManager)

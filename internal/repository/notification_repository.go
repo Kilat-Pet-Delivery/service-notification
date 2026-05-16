@@ -85,28 +85,6 @@ func (r *NotificationRepository) FindByID(ctx context.Context, id uuid.UUID) (*n
 	return toNotifDomain(&model), nil
 }
 
-// FindByUserID retrieves paginated notifications for a user, newest first.
-func (r *NotificationRepository) FindByUserID(ctx context.Context, userID uuid.UUID, limit, offset int) ([]*notifDomain.Notification, int64, error) {
-	var models []NotificationModel
-	var total int64
-
-	r.db.WithContext(ctx).Model(&NotificationModel{}).Where("user_id = ?", userID).Count(&total)
-
-	if err := r.db.WithContext(ctx).
-		Where("user_id = ?", userID).
-		Order("created_at DESC").
-		Limit(limit).Offset(offset).
-		Find(&models).Error; err != nil {
-		return nil, 0, err
-	}
-
-	notifications := make([]*notifDomain.Notification, len(models))
-	for i, m := range models {
-		notifications[i] = toNotifDomain(&m)
-	}
-	return notifications, total, nil
-}
-
 // FindPendingRetries returns notifications eligible for retry.
 func (r *NotificationRepository) FindPendingRetries(ctx context.Context) ([]*notifDomain.Notification, error) {
 	var models []NotificationModel

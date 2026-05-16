@@ -11,7 +11,6 @@ type NotificationRepository interface {
 	Save(ctx context.Context, n *Notification) error
 	Update(ctx context.Context, n *Notification) error
 	FindByID(ctx context.Context, id uuid.UUID) (*Notification, error)
-	FindByUserID(ctx context.Context, userID uuid.UUID, limit, offset int) ([]*Notification, int64, error)
 	FindPendingRetries(ctx context.Context) ([]*Notification, error)
 	CountUnreadByUserID(ctx context.Context, userID uuid.UUID) (int64, error)
 }
