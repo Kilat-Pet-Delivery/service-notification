@@ -19,7 +19,7 @@ type Notification struct {
 	retryCount     int
 	maxRetries     int
 	status         NotificationStatus
-	isRead         bool
+	readAt         *time.Time
 	metadata       map[string]interface{}
 	fcmSentAt      *time.Time
 	smsSentAt      *time.Time
@@ -49,7 +49,7 @@ func NewNotification(
 		retryCount:     0,
 		maxRetries:     3,
 		status:         StatusPending,
-		isRead:         false,
+		readAt:         nil,
 		metadata:       metadata,
 		version:        1,
 		createdAt:      now,
@@ -65,7 +65,7 @@ func Reconstitute(
 	channelsSent, channelsFailed []NotificationChannel,
 	retryCount, maxRetries int,
 	status NotificationStatus,
-	isRead bool,
+	readAt *time.Time,
 	metadata map[string]interface{},
 	fcmSentAt, smsSentAt, emailSentAt *time.Time,
 	version int64,
@@ -83,7 +83,7 @@ func Reconstitute(
 		retryCount:     retryCount,
 		maxRetries:     maxRetries,
 		status:         status,
-		isRead:         isRead,
+		readAt:         readAt,
 		metadata:       metadata,
 		fcmSentAt:      fcmSentAt,
 		smsSentAt:      smsSentAt,
@@ -119,11 +119,16 @@ func (n *Notification) MarkChannelFailed(channel NotificationChannel) {
 	n.updatedAt = time.Now().UTC()
 }
 
-// MarkAsRead marks the notification as read by the user.
+// MarkAsRead marks the notification as read by the user. Idempotent: if the
+// notification was already read, the existing readAt timestamp is preserved.
 func (n *Notification) MarkAsRead() {
-	n.isRead = true
+	if n.readAt != nil {
+		return
+	}
+	now := time.Now().UTC()
+	n.readAt = &now
 	n.version++
-	n.updatedAt = time.Now().UTC()
+	n.updatedAt = now
 }
 
 // CanRetry returns true if the notification has failed channels and retries remaining.
@@ -165,7 +170,8 @@ func (n *Notification) ChannelsFailed() []NotificationChannel {
 func (n *Notification) RetryCount() int            { return n.retryCount }
 func (n *Notification) MaxRetries() int            { return n.maxRetries }
 func (n *Notification) Status() NotificationStatus { return n.status }
-func (n *Notification) IsRead() bool               { return n.isRead }
+func (n *Notification) ReadAt() *time.Time         { return n.readAt }
+func (n *Notification) IsRead() bool               { return n.readAt != nil }
 func (n *Notification) Metadata() map[string]interface{} {
 	return n.metadata
 }

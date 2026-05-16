@@ -25,7 +25,7 @@ type NotificationModel struct {
 	RetryCount     int        `gorm:"not null;default:0"`
 	MaxRetries     int        `gorm:"not null;default:3"`
 	Status         string     `gorm:"type:varchar(20);not null;default:'pending'"`
-	IsRead         bool       `gorm:"not null;default:false"`
+	ReadAt         *time.Time `gorm:"type:timestamptz"`
 	Metadata       *string    `gorm:"type:jsonb"`
 	FCMSentAt      *time.Time `gorm:"type:timestamptz"`
 	SMSSentAt      *time.Time `gorm:"type:timestamptz"`
@@ -129,7 +129,7 @@ func (r *NotificationRepository) FindPendingRetries(ctx context.Context) ([]*not
 func (r *NotificationRepository) CountUnreadByUserID(ctx context.Context, userID uuid.UUID) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).Model(&NotificationModel{}).
-		Where("user_id = ? AND is_read = false", userID).
+		Where("user_id = ? AND read_at IS NULL", userID).
 		Count(&count).Error
 	return count, err
 }
@@ -159,7 +159,7 @@ func toNotifModel(n *notifDomain.Notification) *NotificationModel {
 		RetryCount:     n.RetryCount(),
 		MaxRetries:     n.MaxRetries(),
 		Status:         string(n.Status()),
-		IsRead:         n.IsRead(),
+		ReadAt:         n.ReadAt(),
 		Metadata:       metaPtr,
 		FCMSentAt:      n.FCMSentAt(),
 		SMSSentAt:      n.SMSSentAt(),
@@ -188,7 +188,7 @@ func toNotifDomain(m *NotificationModel) *notifDomain.Notification {
 		sent, failed,
 		m.RetryCount, m.MaxRetries,
 		notifDomain.NotificationStatus(m.Status),
-		m.IsRead, metadata,
+		m.ReadAt, metadata,
 		m.FCMSentAt, m.SMSSentAt, m.EmailSentAt,
 		m.Version, m.CreatedAt, m.UpdatedAt,
 	)

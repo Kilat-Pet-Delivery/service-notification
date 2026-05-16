@@ -21,6 +21,7 @@ type NotificationDTO struct {
 	Body           string     `json:"body"`
 	Status         string     `json:"status"`
 	IsRead         bool       `json:"is_read"`
+	ReadAt         *time.Time `json:"read_at,omitempty"`
 	ChannelsSent   []string   `json:"channels_sent"`
 	ChannelsFailed []string   `json:"channels_failed"`
 	CreatedAt      time.Time  `json:"created_at"`
@@ -259,6 +260,7 @@ func toNotifDTO(n *notifDomain.Notification) *NotificationDTO {
 		Body:           n.Body(),
 		Status:         string(n.Status()),
 		IsRead:         n.IsRead(),
+		ReadAt:         n.ReadAt(),
 		ChannelsSent:   sent,
 		ChannelsFailed: failed,
 		CreatedAt:      n.CreatedAt(),
