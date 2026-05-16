@@ -1,4 +1,6 @@
 -- Reverse of 003_add_notification_read_at.up.sql.
+-- LOSSY: the exact read_at timestamp is collapsed back to a boolean and cannot
+-- be recovered if up is re-applied later. Down is for emergency rollback only.
 ALTER TABLE notifications ADD COLUMN is_read BOOLEAN NOT NULL DEFAULT false;
 
 -- Preserve read state: any row that had a read_at timestamp is considered read.

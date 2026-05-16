@@ -12,6 +12,8 @@ DROP INDEX IF EXISTS idx_notifications_user_unread;
 ALTER TABLE notifications DROP COLUMN is_read;
 
 -- Recreate the unread partial index against the new column.
+-- Widened from (user_id) to (user_id, created_at DESC) to support the
+-- paginated unread inbox added by Phase 5 (Task 5.2).
 CREATE INDEX idx_notifications_user_unread
     ON notifications (user_id, created_at DESC)
     WHERE read_at IS NULL;
