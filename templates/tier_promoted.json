@@ -1,0 +1,1 @@
+{"event_type":"tier_promoted","push":{"title":"Tier promoted","body":"You moved up to {{.NewTier}}."},"sms":{"body":"You moved up to {{.NewTier}}."},"email":{"subject":"Tier promoted","html":"You moved up to {{.NewTier}}."}}

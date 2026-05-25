@@ -1,0 +1,1 @@
+{"event_type":"incident_assigned","push":{"title":"Incident assigned","body":"Incident {{.IncidentID}} was assigned to you."},"sms":{"body":"Incident assigned: {{.IncidentID}}."},"email":{"subject":"Incident assigned","html":"Incident {{.IncidentID}} was assigned to you."}}

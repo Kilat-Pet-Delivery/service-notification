@@ -1,0 +1,1 @@
+{"event_type":"chat_message","push":{"title":"New chat message","body":"You have a new message."},"sms":{"body":"You have a new chat message."},"email":{"subject":"New chat message","html":"You have a new chat message."}}

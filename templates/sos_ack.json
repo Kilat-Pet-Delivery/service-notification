@@ -1,0 +1,1 @@
+{"event_type":"sos_ack","push":{"title":"SOS acknowledged","body":"SOS incident {{.IncidentID}} has an assigned agent."},"sms":{"body":"SOS acknowledged: {{.IncidentID}}."},"email":{"subject":"SOS acknowledged","html":"SOS incident {{.IncidentID}} has an assigned agent."}}

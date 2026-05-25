@@ -130,6 +130,34 @@ func main() {
 	)
 	defer func() { _ = trackingConsumer.Close() }()
 
+	loyaltyConsumer := events.NewLoyaltyEventConsumer(
+		cfg.KafkaConfig.Brokers,
+		groupPrefix+"-notification-loyalty",
+		notifService, log,
+	)
+	defer func() { _ = loyaltyConsumer.Close() }()
+
+	zonesConsumer := events.NewZonesEventConsumer(
+		cfg.KafkaConfig.Brokers,
+		groupPrefix+"-notification-zones",
+		notifService, nil, log,
+	)
+	defer func() { _ = zonesConsumer.Close() }()
+
+	incidentConsumer := events.NewIncidentEventConsumer(
+		cfg.KafkaConfig.Brokers,
+		groupPrefix+"-notification-incident",
+		notifService, log,
+	)
+	defer func() { _ = incidentConsumer.Close() }()
+
+	chatConsumer := events.NewChatEventConsumer(
+		cfg.KafkaConfig.Brokers,
+		groupPrefix+"-notification-chat",
+		notifService, log,
+	)
+	defer func() { _ = chatConsumer.Close() }()
+
 	// 11. Start consumers in background goroutines.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -149,6 +177,30 @@ func main() {
 	go func() {
 		if err := trackingConsumer.Start(ctx); err != nil && ctx.Err() == nil {
 			log.Error("tracking event consumer error", zap.Error(err))
+		}
+	}()
+
+	go func() {
+		if err := loyaltyConsumer.Start(ctx); err != nil && ctx.Err() == nil {
+			log.Error("loyalty event consumer error", zap.Error(err))
+		}
+	}()
+
+	go func() {
+		if err := zonesConsumer.Start(ctx); err != nil && ctx.Err() == nil {
+			log.Error("zones event consumer error", zap.Error(err))
+		}
+	}()
+
+	go func() {
+		if err := incidentConsumer.Start(ctx); err != nil && ctx.Err() == nil {
+			log.Error("incident event consumer error", zap.Error(err))
+		}
+	}()
+
+	go func() {
+		if err := chatConsumer.Start(ctx); err != nil && ctx.Err() == nil {
+			log.Error("chat event consumer error", zap.Error(err))
 		}
 	}()
 

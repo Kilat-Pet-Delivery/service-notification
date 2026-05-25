@@ -1,0 +1,1 @@
+{"event_type":"surge_active","push":{"title":"Surge active","body":"{{.ZoneCode}} is now {{.Multiplier}}x."},"sms":{"body":"Surge active in {{.ZoneCode}}."},"email":{"subject":"Surge active","html":"{{.ZoneCode}} is now {{.Multiplier}}x."}}

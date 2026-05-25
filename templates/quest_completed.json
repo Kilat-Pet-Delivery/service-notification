@@ -1,0 +1,1 @@
+{"event_type":"quest_completed","push":{"title":"Quest completed","body":"You completed {{.QuestCode}}."},"sms":{"body":"Quest completed: {{.QuestCode}}."},"email":{"subject":"Quest completed","html":"You completed {{.QuestCode}}."}}
