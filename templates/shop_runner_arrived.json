@@ -1,0 +1,14 @@
+{
+  "event_type": "shop_runner_arrived",
+  "push": {
+    "title": "Runner arrived",
+    "body": "Runner has arrived for order {{.BookingNumber}}."
+  },
+  "sms": {
+    "body": "Runner has arrived for order {{.BookingNumber}}."
+  },
+  "email": {
+    "subject": "Runner arrived",
+    "html": "Runner has arrived for order {{.BookingNumber}}."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "event_type": "shop_withdrawal_paid",
+  "push": {
+    "title": "Withdrawal paid",
+    "body": "RM {{.AmountMYR}} has been paid to your bank account."
+  },
+  "sms": {
+    "body": "Withdrawal paid: RM {{.AmountMYR}}."
+  },
+  "email": {
+    "subject": "Withdrawal paid",
+    "html": "RM {{.AmountMYR}} has been paid to your bank account."
+  }
+}

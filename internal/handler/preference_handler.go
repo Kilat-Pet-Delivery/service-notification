@@ -6,6 +6,7 @@ import (
 	"github.com/Kilat-Pet-Delivery/lib-common/response"
 	"github.com/Kilat-Pet-Delivery/service-notification/internal/application"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -34,6 +35,11 @@ func (h *PreferenceHandler) RegisterRoutes(rg *gin.RouterGroup, jwtManager *auth
 	fcm.Use(middleware.AuthMiddleware(jwtManager))
 	{
 		fcm.POST("", h.RegisterFCMToken)
+	}
+	devices := rg.Group("/notifications/device-tokens")
+	devices.Use(middleware.AuthMiddleware(jwtManager))
+	{
+		devices.POST("", h.RegisterDeviceToken)
 	}
 }
 
@@ -86,6 +92,13 @@ type registerFCMTokenRequest struct {
 	Token string `json:"token" binding:"required"`
 }
 
+type registerDeviceTokenRequest struct {
+	Token     string `json:"token" binding:"required"`
+	Platform  string `json:"platform"`
+	ScopeType string `json:"scope_type"`
+	ScopeID   string `json:"scope_id"`
+}
+
 // RegisterFCMToken stores the Firebase device token.
 func (h *PreferenceHandler) RegisterFCMToken(c *gin.Context) {
 	userID, ok := middleware.GetUserID(c)
@@ -106,4 +119,32 @@ func (h *PreferenceHandler) RegisterFCMToken(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{"message": "FCM token registered"})
+}
+
+// RegisterDeviceToken stores a device token, optionally scoped to a shop.
+func (h *PreferenceHandler) RegisterDeviceToken(c *gin.Context) {
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		response.BadRequest(c, "invalid user context")
+		return
+	}
+	var req registerDeviceTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "token is required")
+		return
+	}
+	var scopeID *uuid.UUID
+	if req.ScopeID != "" {
+		parsed, err := uuid.Parse(req.ScopeID)
+		if err != nil {
+			response.BadRequest(c, "invalid scope_id")
+			return
+		}
+		scopeID = &parsed
+	}
+	if err := h.service.RegisterScopedFCMToken(c.Request.Context(), userID, req.Token, req.ScopeType, scopeID); err != nil {
+		response.Error(c, err)
+		return
+	}
+	response.Success(c, gin.H{"message": "device token registered"})
 }

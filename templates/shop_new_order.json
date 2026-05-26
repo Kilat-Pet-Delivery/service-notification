@@ -1,0 +1,14 @@
+{
+  "event_type": "shop_new_order",
+  "push": {
+    "title": "New shop order",
+    "body": "Order {{.BookingNumber}} is waiting for your shop."
+  },
+  "sms": {
+    "body": "New shop order {{.BookingNumber}} is waiting."
+  },
+  "email": {
+    "subject": "New shop order",
+    "html": "Order {{.BookingNumber}} is waiting for your shop."
+  }
+}

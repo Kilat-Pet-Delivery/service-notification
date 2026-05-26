@@ -1,0 +1,14 @@
+{
+  "event_type": "shop_runner_arriving",
+  "push": {
+    "title": "Runner arriving",
+    "body": "Runner is about {{.RunnerETAMinutes}} minutes away."
+  },
+  "sms": {
+    "body": "Runner is about {{.RunnerETAMinutes}} minutes away."
+  },
+  "email": {
+    "subject": "Runner arriving",
+    "html": "Runner is about {{.RunnerETAMinutes}} minutes away."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "event_type": "staff_invite",
+  "push": {
+    "title": "Shop staff invite",
+    "body": "You were invited to join {{.ShopName}} as {{.Role}}."
+  },
+  "sms": {
+    "body": "You were invited to join {{.ShopName}} as {{.Role}}. Open {{.AcceptURL}}"
+  },
+  "email": {
+    "subject": "You're invited to {{.ShopName}}",
+    "html": "Open {{.AcceptURL}} to accept your {{.Role}} invite."
+  }
+}

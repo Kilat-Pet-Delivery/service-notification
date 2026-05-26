@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Kilat-Pet-Delivery/service-notification/internal/adapter"
+	"github.com/Kilat-Pet-Delivery/service-notification/internal/categories"
 	notifDomain "github.com/Kilat-Pet-Delivery/service-notification/internal/domain/notification"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -167,6 +168,45 @@ func (s *NotificationService) RegisterFCMToken(ctx context.Context, userID uuid.
 	return s.prefRepo.Update(ctx, pref)
 }
 
+// RegisterScopedFCMToken stores a device token for a user/shop scope.
+func (s *NotificationService) RegisterScopedFCMToken(ctx context.Context, userID uuid.UUID, token, scopeType string, scopeID *uuid.UUID) error {
+	if repo, ok := s.prefRepo.(interface {
+		RegisterScopedFCMToken(context.Context, uuid.UUID, string, string, *uuid.UUID) error
+	}); ok {
+		return repo.RegisterScopedFCMToken(ctx, userID, token, scopeType, scopeID)
+	}
+	return s.RegisterFCMToken(ctx, userID, token)
+}
+
+// HandleShopScopedEvent fans out a shop notification to every scoped device.
+func (s *NotificationService) HandleShopScopedEvent(ctx context.Context, eventType string, shopID uuid.UUID, bookingID *uuid.UUID, metadata map[string]interface{}) error {
+	repo, ok := s.prefRepo.(interface {
+		FindByScope(context.Context, string, uuid.UUID) ([]*notifDomain.NotificationPreference, error)
+	})
+	if !ok {
+		return nil
+	}
+	prefs, err := repo.FindByScope(ctx, "shop", shopID)
+	if err != nil {
+		return err
+	}
+	for _, pref := range prefs {
+		if err := s.HandleEvent(ctx, eventType, pref.UserID(), bookingID, metadata); err != nil {
+			s.logger.Error("failed to dispatch shop scoped event", zap.Error(err), zap.String("shop_id", shopID.String()))
+		}
+	}
+	return nil
+}
+
+// SendStaffInviteEmail sends an invite directly to the invited email address.
+func (s *NotificationService) SendStaffInviteEmail(ctx context.Context, to string, metadata map[string]interface{}) error {
+	subject, body, err := s.templateSvc.RenderForChannel(categories.StaffInvite, notifDomain.ChannelEmail, metadata)
+	if err != nil {
+		return err
+	}
+	return s.smtp.SendEmail(ctx, to, subject, body)
+}
+
 // --- private helpers ---
 
 func (s *NotificationService) enabledChannels(pref *notifDomain.NotificationPreference) []notifDomain.NotificationChannel {
@@ -209,4 +249,3 @@ func (s *NotificationService) sendViaChannel(ctx context.Context, notif *notifDo
 		return fmt.Errorf("unsupported channel: %s", ch)
 	}
 }
-

@@ -1,0 +1,14 @@
+{
+  "event_type": "shop_low_stock",
+  "push": {
+    "title": "Low stock",
+    "body": "{{.ProductName}} is at {{.StockOnHand}} units."
+  },
+  "sms": {
+    "body": "Low stock: {{.ProductName}} is at {{.StockOnHand}} units."
+  },
+  "email": {
+    "subject": "Low stock",
+    "html": "{{.ProductName}} is at {{.StockOnHand}} units."
+  }
+}

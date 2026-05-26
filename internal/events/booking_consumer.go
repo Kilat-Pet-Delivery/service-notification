@@ -8,6 +8,8 @@ import (
 	"github.com/Kilat-Pet-Delivery/lib-common/kafka"
 	"github.com/Kilat-Pet-Delivery/lib-proto/events"
 	"github.com/Kilat-Pet-Delivery/service-notification/internal/application"
+	"github.com/Kilat-Pet-Delivery/service-notification/internal/categories"
+	"github.com/google/uuid"
 	kafkago "github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
@@ -70,14 +72,20 @@ func (c *BookingEventConsumer) handleMessage(ctx context.Context, msg kafkago.Me
 }
 
 func (c *BookingEventConsumer) handleBookingRequested(ctx context.Context, ce kafka.CloudEvent) error {
-	var evt events.BookingRequestedEvent
+	var evt struct {
+		events.BookingRequestedEvent
+		ShopID *uuid.UUID `json:"shop_id,omitempty"`
+	}
 	if err := ce.ParseData(&evt); err != nil {
 		return err
 	}
 	metadata := map[string]interface{}{
-		"BookingNumber":  evt.BookingNumber,
-		"BookingID":      evt.BookingID.String(),
+		"BookingNumber":   evt.BookingNumber,
+		"BookingID":       evt.BookingID.String(),
 		"AmountFormatted": fmt.Sprintf("RM %.2f", float64(evt.EstimatedPrice)/100),
+	}
+	if evt.ShopID != nil && *evt.ShopID != uuid.Nil {
+		return c.service.HandleShopScopedEvent(ctx, categories.ShopNewOrder, *evt.ShopID, &evt.BookingID, metadata)
 	}
 	return c.service.HandleEvent(ctx, events.BookingRequested, evt.OwnerID, &evt.BookingID, metadata)
 }
@@ -140,8 +148,8 @@ func (c *BookingEventConsumer) handleBookingCompleted(ctx context.Context, ce ka
 		return err
 	}
 	metadata := map[string]interface{}{
-		"BookingNumber":  evt.BookingNumber,
-		"BookingID":      evt.BookingID.String(),
+		"BookingNumber":   evt.BookingNumber,
+		"BookingID":       evt.BookingID.String(),
 		"AmountFormatted": fmt.Sprintf("RM %.2f", float64(evt.FinalPrice)/100),
 	}
 	return c.service.HandleEvent(ctx, events.BookingCompleted, evt.OwnerID, &evt.BookingID, metadata)

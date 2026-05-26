@@ -8,6 +8,8 @@ import (
 	"github.com/Kilat-Pet-Delivery/lib-common/kafka"
 	"github.com/Kilat-Pet-Delivery/lib-proto/events"
 	"github.com/Kilat-Pet-Delivery/service-notification/internal/application"
+	"github.com/Kilat-Pet-Delivery/service-notification/internal/categories"
+	"github.com/google/uuid"
 	kafkago "github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
@@ -57,10 +59,27 @@ func (c *PaymentEventConsumer) handleMessage(ctx context.Context, msg kafkago.Me
 		return c.handleEscrowRefunded(ctx, cloudEvent)
 	case strings.EqualFold(cloudEvent.Type, events.PaymentFailed):
 		return c.handlePaymentFailed(ctx, cloudEvent)
+	case strings.EqualFold(cloudEvent.Type, "withdrawal.paid"):
+		return c.handleWithdrawalPaid(ctx, cloudEvent)
 	default:
 		c.logger.Debug("ignoring unhandled payment event", zap.String("type", cloudEvent.Type))
 		return nil
 	}
+}
+
+func (c *PaymentEventConsumer) handleWithdrawalPaid(ctx context.Context, ce kafka.CloudEvent) error {
+	var evt struct {
+		ShopID         uuid.UUID `json:"shop_id"`
+		WithdrawalID   uuid.UUID `json:"withdrawal_id"`
+		AmountMyrCents int64     `json:"amount_myr_cents"`
+	}
+	if err := ce.ParseData(&evt); err != nil {
+		return err
+	}
+	return c.service.HandleShopScopedEvent(ctx, categories.ShopWithdrawalPaid, evt.ShopID, nil, map[string]interface{}{
+		"WithdrawalID": evt.WithdrawalID.String(),
+		"AmountMYR":    fmt.Sprintf("%.2f", float64(evt.AmountMyrCents)/100),
+	})
 }
 
 func (c *PaymentEventConsumer) handleEscrowHeld(ctx context.Context, ce kafka.CloudEvent) error {
@@ -87,10 +106,10 @@ func (c *PaymentEventConsumer) handleEscrowReleased(ctx context.Context, ce kafk
 		return err
 	}
 	metadata := map[string]interface{}{
-		"PaymentID":            evt.PaymentID.String(),
-		"BookingID":            evt.BookingID.String(),
+		"PaymentID":             evt.PaymentID.String(),
+		"BookingID":             evt.BookingID.String(),
 		"RunnerPayoutFormatted": fmt.Sprintf("RM %.2f", float64(evt.RunnerPayout)/100),
-		"PlatformFeeFormatted": fmt.Sprintf("RM %.2f", float64(evt.PlatformFee)/100),
+		"PlatformFeeFormatted":  fmt.Sprintf("RM %.2f", float64(evt.PlatformFee)/100),
 	}
 	// Notify the runner about their payout.
 	return c.service.HandleEvent(ctx, events.PaymentEscrowReleased, evt.RunnerID, &evt.BookingID, metadata)

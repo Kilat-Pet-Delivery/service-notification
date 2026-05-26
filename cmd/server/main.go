@@ -130,6 +130,20 @@ func main() {
 	)
 	defer func() { _ = trackingConsumer.Close() }()
 
+	inventoryConsumer := events.NewInventoryEventConsumer(
+		cfg.KafkaConfig.Brokers,
+		groupPrefix+"-notification-inventory",
+		notifService, log,
+	)
+	defer func() { _ = inventoryConsumer.Close() }()
+
+	shopConsumer := events.NewShopEventConsumer(
+		cfg.KafkaConfig.Brokers,
+		groupPrefix+"-notification-shop",
+		notifService, log,
+	)
+	defer func() { _ = shopConsumer.Close() }()
+
 	// 11. Start consumers in background goroutines.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -149,6 +163,18 @@ func main() {
 	go func() {
 		if err := trackingConsumer.Start(ctx); err != nil && ctx.Err() == nil {
 			log.Error("tracking event consumer error", zap.Error(err))
+		}
+	}()
+
+	go func() {
+		if err := inventoryConsumer.Start(ctx); err != nil && ctx.Err() == nil {
+			log.Error("inventory event consumer error", zap.Error(err))
+		}
+	}()
+
+	go func() {
+		if err := shopConsumer.Start(ctx); err != nil && ctx.Err() == nil {
+			log.Error("shop event consumer error", zap.Error(err))
 		}
 	}()
 

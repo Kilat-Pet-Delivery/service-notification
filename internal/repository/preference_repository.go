@@ -15,6 +15,8 @@ import (
 type PreferenceModel struct {
 	ID              uuid.UUID  `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	UserID          uuid.UUID  `gorm:"type:uuid;uniqueIndex;not null"`
+	ScopeType       string     `gorm:"type:varchar(20);index;default:'user'"`
+	ScopeID         *uuid.UUID `gorm:"type:uuid;index"`
 	EnablePush      bool       `gorm:"not null;default:true"`
 	EnableSMS       bool       `gorm:"not null;default:true"`
 	EnableEmail     bool       `gorm:"not null;default:true"`
@@ -96,12 +98,63 @@ func (r *PreferenceRepository) Upsert(ctx context.Context, pref *notifDomain.Not
 	return r.Update(ctx, existing)
 }
 
+// RegisterScopedFCMToken stores a token for a user, optionally scoped to a shop.
+func (r *PreferenceRepository) RegisterScopedFCMToken(ctx context.Context, userID uuid.UUID, token, scopeType string, scopeID *uuid.UUID) error {
+	if scopeType == "" {
+		scopeType = "user"
+	}
+	var model PreferenceModel
+	err := r.db.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Take(&model).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		now := time.Now().UTC()
+		return r.db.WithContext(ctx).Create(&PreferenceModel{
+			ID:          uuid.New(),
+			UserID:      userID,
+			ScopeType:   scopeType,
+			ScopeID:     scopeID,
+			EnablePush:  true,
+			EnableSMS:   true,
+			EnableEmail: true,
+			FCMToken:    token,
+			Version:     1,
+			CreatedAt:   now,
+			UpdatedAt:   now,
+		}).Error
+	}
+	if err != nil {
+		return err
+	}
+	return r.db.WithContext(ctx).Model(&PreferenceModel{}).Where("id = ?", model.ID).Updates(map[string]interface{}{
+		"fcm_token":  token,
+		"scope_type": scopeType,
+		"scope_id":   scopeID,
+		"updated_at": time.Now().UTC(),
+		"version":    model.Version + 1,
+	}).Error
+}
+
+// FindByScope returns preferences registered to a scope.
+func (r *PreferenceRepository) FindByScope(ctx context.Context, scopeType string, scopeID uuid.UUID) ([]*notifDomain.NotificationPreference, error) {
+	var rows []PreferenceModel
+	if err := r.db.WithContext(ctx).Where("scope_type = ? AND scope_id = ? AND fcm_token <> ''", scopeType, scopeID).Find(&rows).Error; err != nil {
+		return nil, err
+	}
+	out := make([]*notifDomain.NotificationPreference, len(rows))
+	for i := range rows {
+		out[i] = toPrefDomain(&rows[i])
+	}
+	return out, nil
+}
+
 // --- mappers ---
 
 func toPrefModel(p *notifDomain.NotificationPreference) *PreferenceModel {
 	return &PreferenceModel{
 		ID:              p.ID(),
 		UserID:          p.UserID(),
+		ScopeType:       "user",
 		EnablePush:      p.EnablePush(),
 		EnableSMS:       p.EnableSMS(),
 		EnableEmail:     p.EnableEmail(),
